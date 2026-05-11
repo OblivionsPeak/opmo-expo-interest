@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operation Motorsport — Sim Racing Expo Interest Form</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="favicon.ico">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #1c2128;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #7d8590;
+  --accent: #c4a87a;
+  --accent-hover: #b8956a;
+  --accent-dim: rgba(196,168,122,.12);
+  --red: #dc2626;
+  --danger: #f85149;
+  --success: #3fb950;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body {
+  background-color: var(--bg);
+  background-image: linear-gradient(rgba(13,17,23,.78),rgba(13,17,23,.78)), url('Spa-2.jpg');
+  background-size: cover;
+  background-position: center 40%;
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(196,168,122,.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(196,168,122,.018) 1px, transparent 1px);
+  background-size: 52px 52px;
+  pointer-events: none;
+  z-index: 0;
+}
+.page-wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 40px 20px 60px;
+}
+
+/* ── Brand ── */
+.brand-header { text-align: center; margin-bottom: 36px; }
+.brand-logo { width: 100%; max-width: 480px; height: auto; display: block; margin: 0 auto; }
+.brand-season { font-size: 11px; letter-spacing: 2px; color: var(--muted); margin-top: 10px; }
+.brand-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(196,168,122,.4), transparent); margin: 16px auto 0; width: 70%; }
+
+/* ── Card ── */
+.form-card {
+  background: rgba(22,27,34,.88);
+  border: 1px solid rgba(196,168,122,.2);
+  border-radius: 14px;
+  padding: 36px 32px;
+  backdrop-filter: blur(6px);
+}
+.form-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.form-subtitle { font-size: 12px; color: var(--muted); margin-bottom: 28px; line-height: 1.5; }
+
+/* ── Fields ── */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-group { margin-bottom: 20px; }
+.form-group.full { grid-column: 1 / -1; }
+label.field-label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+input[type=text], input[type=email], input[type=tel] {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 14px;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color .15s;
+}
+input[type=text]:focus, input[type=email]:focus, input[type=tel]:focus { border-color: var(--accent); }
+input::placeholder { color: var(--muted); }
+
+/* ── Pill groups (radio + checkbox) ── */
+.pill-group { display: grid; gap: 8px; }
+.pill-group.cols-2 { grid-template-columns: 1fr 1fr; }
+.pill-group.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.pill-group.cols-5 { grid-template-columns: repeat(5, 1fr); }
+
+.choice-pill {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; padding: 10px 8px;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+  cursor: pointer; transition: all .15s; text-align: center; user-select: none;
+}
+.choice-pill input { display: none; }
+.choice-pill .pill-name { font-size: 12px; font-weight: 700; color: var(--muted); transition: color .15s; line-height: 1.3; }
+.choice-pill:hover { border-color: var(--accent); }
+.choice-pill:hover .pill-name { color: var(--accent); }
+.choice-pill.selected { background: var(--accent-dim); border-color: var(--accent); }
+.choice-pill.selected .pill-name { color: var(--accent); }
+
+.all-pill.selected { background: rgba(196,168,122,.2); border-color: var(--accent); }
+
+/* ── Errors ── */
+.field-error { font-size: 11px; color: var(--danger); margin-top: 4px; display: none; }
+.field-error.show { display: block; }
+input.invalid { border-color: var(--danger) !important; }
+
+/* ── Submit ── */
+.btn-submit {
+  width: 100%; padding: 13px;
+  background: var(--accent); color: #0d1117;
+  border: none; border-radius: 8px;
+  font-size: 14px; font-weight: 800; letter-spacing: .5px;
+  cursor: pointer; transition: background .15s, transform .1s;
+  margin-top: 8px;
+}
+.btn-submit:hover { background: var(--accent-hover); }
+.btn-submit:active { transform: scale(.98); }
+.btn-submit:disabled { opacity: .6; cursor: default; }
+
+/* ── Success ── */
+.success-card { display: none; text-align: center; padding: 40px 10px; }
+.success-card.show { display: block; }
+.success-icon { font-size: 52px; margin-bottom: 16px; }
+.success-title { font-size: 22px; font-weight: 800; color: var(--accent); margin-bottom: 8px; }
+.success-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+.btn-secondary {
+  padding: 10px 22px;
+  background: transparent; color: var(--accent);
+  border: 1px solid var(--accent); border-radius: 8px;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  transition: all .15s; margin: 0 6px;
+}
+.btn-secondary:hover { background: var(--accent-dim); }
+
+/* ── Submit error banner ── */
+.submit-error {
+  display: none;
+  background: rgba(248,81,73,.1);
+  border: 1px solid rgba(248,81,73,.3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--danger);
+  margin-top: 12px;
+  line-height: 1.5;
+}
+.submit-error.show { display: block; }
+
+/* ── Password modal ── */
+.pw-modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.7); z-index: 100;
+  align-items: center; justify-content: center;
+}
+.pw-modal-overlay.show { display: flex; }
+.pw-modal {
+  background: #161b22; border: 1px solid rgba(196,168,122,.25);
+  border-radius: 14px; padding: 32px 28px; width: 100%; max-width: 360px;
+  text-align: center;
+}
+.pw-modal h3 { font-size: 15px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+.pw-modal p { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+.pw-modal input[type=password] {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-size: 14px;
+  padding: 10px 14px; outline: none; margin-bottom: 12px;
+  text-align: center; letter-spacing: 2px;
+}
+.pw-modal input[type=password]:focus { border-color: var(--accent); }
+.pw-modal input[type=password].invalid { border-color: var(--danger); }
+.pw-error { font-size: 11px; color: var(--danger); margin-bottom: 12px; display: none; }
+.pw-error.show { display: block; }
+.pw-actions { display: flex; gap: 8px; }
+.pw-actions button { flex: 1; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; border: none; transition: all .15s; }
+.pw-submit { background: var(--accent); color: #0d1117; }
+.pw-submit:hover { background: var(--accent-hover); }
+.pw-cancel { background: transparent; color: var(--muted); border: 1px solid var(--border) !important; }
+.pw-cancel:hover { color: var(--text); }
+
+/* ── Admin ── */
+.admin-toggle { text-align: center; margin-top: 28px; }
+.admin-toggle button {
+  background: none; border: none; color: var(--muted);
+  font-size: 11px; cursor: pointer; letter-spacing: .5px;
+  text-decoration: underline; text-underline-offset: 3px; opacity: .45;
+}
+.admin-toggle button:hover { opacity: 1; }
+.admin-panel {
+  display: none;
+  background: rgba(22,27,34,.9);
+  border: 1px solid rgba(196,168,122,.2);
+  border-radius: 14px; padding: 24px; margin-top: 16px;
+  backdrop-filter: blur(6px);
+}
+.admin-panel.show { display: block; }
+.admin-hdr { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+.admin-hdr h3 { font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 2px; }
+.admin-count { font-size: 12px; color: var(--muted); }
+.admin-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-export {
+  padding: 8px 14px; background: #216c3c; color: #fff;
+  border: none; border-radius: 6px; font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: background .15s;
+}
+.btn-export:hover { background: #2ea04b; }
+.btn-clear { padding: 8px 14px; background: transparent; color: var(--danger); border: 1px solid rgba(248,81,73,.35); border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all .15s; }
+.btn-clear:hover { background: rgba(248,81,73,.1); }
+.admin-table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { text-align: left; font-size: 10px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 8px 10px; border-bottom: 1px solid rgba(48,54,61,.5); color: var(--text); white-space: nowrap; }
+tr:last-child td { border-bottom: none; }
+.empty-state { text-align: center; color: var(--muted); padding: 28px; font-size: 13px; }
+
+/* ── Setup notice ── */
+.setup-notice {
+  background: rgba(196,168,122,.07);
+  border: 1px solid rgba(196,168,122,.2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 22px;
+}
+.setup-notice strong { color: var(--accent); }
+.setup-notice code { background: var(--surface2); padding: 1px 5px; border-radius: 4px; font-size: 11px; color: var(--text); }
+
+@media (max-width: 500px) {
+  .pill-group.cols-5 { grid-template-columns: 1fr 1fr; }
+  .form-card { padding: 24px 18px; }
+}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- Brand -->
+  <div class="brand-header">
+    <img src="OpMo_eMotorsport_League_red_TPBG_NEG.png" alt="Operation Motorsport" class="brand-logo">
+    <div class="brand-season">Sim Racing Expo — Interest Registration</div>
+    <div class="brand-divider"></div>
+  </div>
+
+  <!-- Form Card -->
+  <div class="form-card" id="form-card">
+    <div class="form-title">Express Your Interest</div>
+    <div class="form-subtitle">Stop by the Operation Motorsport booth and let us know what you're interested in. We'll be in touch with more details after the event.</div>
+
+    <form id="signup-form" novalidate>
+
+      <!-- Name -->
+      <div class="form-group">
+        <label class="field-label" for="name">Full Name</label>
+        <input type="text" id="name" placeholder="e.g. James Anderson" autocomplete="name">
+        <div class="field-error" id="err-name">Required</div>
+      </div>
+
+      <div class="form-row">
+        <!-- Email -->
+        <div class="form-group">
+          <label class="field-label" for="email">Email Address</label>
+          <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+          <div class="field-error" id="err-email">Valid email required</div>
+        </div>
+
+        <!-- Phone -->
+        <div class="form-group">
+          <label class="field-label" for="phone">Phone Number</label>
+          <input type="tel" id="phone" placeholder="(555) 555-5555" autocomplete="tel">
+          <div class="field-error" id="err-phone">Required</div>
+        </div>
+      </div>
+
+      <!-- Interest In -->
+      <div class="form-group">
+        <label class="field-label">Interest In</label>
+        <div class="pill-group cols-2" id="interest-group">
+          <label class="choice-pill" id="pill-league">
+            <input type="checkbox" value="eMotorsport League">
+            <span class="pill-name">eMotorsport League</span>
+          </label>
+          <label class="choice-pill" id="pill-immersion">
+            <input type="checkbox" value="Motorsport Immersion">
+            <span class="pill-name">Motorsport Immersion</span>
+          </label>
+          <label class="choice-pill" id="pill-endurance">
+            <input type="checkbox" value="Endurance Team">
+            <span class="pill-name">Endurance Team</span>
+          </label>
+          <label class="choice-pill all-pill" id="pill-all">
+            <input type="checkbox" value="All of the Above">
+            <span class="pill-name">All of the Above</span>
+          </label>
+        </div>
+        <div class="field-error" id="err-interest">Please select at least one area of interest</div>
+      </div>
+
+      <!-- Veteran Status -->
+      <div class="form-group">
+        <label class="field-label">Veteran Status</label>
+        <div class="pill-group cols-3" id="veteran-group">
+          <label class="choice-pill" id="pill-medret">
+            <input type="radio" name="veteran" value="Medically Retired">
+            <span class="pill-name">Medically Retired</span>
+          </label>
+          <label class="choice-pill" id="pill-active">
+            <input type="radio" name="veteran" value="Active Duty">
+            <span class="pill-name">Active Duty</span>
+          </label>
+          <label class="choice-pill" id="pill-disabled">
+            <input type="radio" name="veteran" value="Disabled Veteran">
+            <span class="pill-name">Disabled Veteran</span>
+          </label>
+          <label class="choice-pill" id="pill-reserves">
+            <input type="radio" name="veteran" value="Reserves/National Guard">
+            <span class="pill-name">Reserves / Nat'l Guard</span>
+          </label>
+          <label class="choice-pill" id="pill-notvet">
+            <input type="radio" name="veteran" value="Not a Veteran">
+            <span class="pill-name">Not a Veteran</span>
+          </label>
+        </div>
+        <div class="field-error" id="err-veteran">Please select a status</div>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submit-btn">SUBMIT INTEREST</button>
+      <div class="submit-error" id="submit-error">
+        Submission failed. Your entry has been saved locally — please try again or let a staff member know.
+      </div>
+    </form>
+
+    <!-- Success -->
+    <div class="success-card" id="success-card">
+      <div class="success-icon">🎖️</div>
+      <div class="success-title">Thank You!</div>
+      <div class="success-sub">
+        Your interest has been recorded. We'll be in touch after the expo.<br><br>
+        <span style="color:var(--accent)">Welcome to Operation Motorsport.</span>
+      </div>
+      <button class="btn-secondary" onclick="resetForm()">Submit Another</button>
+    </div>
+  </div>
+
+  <!-- Admin -->
+  <div class="admin-toggle">
+    <button onclick="toggleAdmin()">Admin Panel</button>
+  </div>
+
+  <div class="admin-panel" id="admin-panel">
+    <div class="admin-hdr">
+      <div>
+        <h3>Interest Submissions</h3>
+        <div class="admin-count" id="admin-count">0 entries</div>
+      </div>
+      <div class="admin-actions">
+        <button class="btn-export" onclick="exportAll()">Export → Excel</button>
+        <button class="btn-clear" onclick="clearAll()">Clear All Data</button>
+      </div>
+    </div>
+
+    <div class="setup-notice" id="setup-notice">
+      <strong>Backend setup required for multi-device data collection.</strong><br>
+      Without a backend, only submissions from <em>this device/browser</em> appear below.
+      To collect all entries, follow the
+      <a href="SETUP.md" style="color:var(--accent)">Google Sheets setup guide</a>
+      and paste your Apps Script URL as <code>APPS_SCRIPT_URL</code> in this file.
+    </div>
+
+    <div class="admin-table-wrap">
+      <div id="admin-table-body"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Password modal -->
+<div class="pw-modal-overlay" id="pw-modal-overlay">
+  <div class="pw-modal">
+    <h3>Admin Access</h3>
+    <p>Enter the admin password to continue.</p>
+    <input type="password" id="pw-input" placeholder="••••••••" autocomplete="off">
+    <div class="pw-error" id="pw-error">Incorrect password. Try again.</div>
+    <div class="pw-actions">
+      <button class="pw-cancel" onclick="closePwModal()">Cancel</button>
+      <button class="pw-submit" onclick="submitPassword()">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+// Paste your Google Apps Script web app URL here after setup.
+// See SETUP.md for instructions. Leave blank to use local-only mode.
+const APPS_SCRIPT_URL = '';
+
+const STORE_KEY = 'opmo-expo-interest';
+
+// ── Interest checkboxes ───────────────────────────────────────────────────────
+const INTEREST_PILLS = ['pill-league','pill-immersion','pill-endurance'];
+const ALL_PILL = 'pill-all';
+
+function getInterestPills() {
+  return INTEREST_PILLS.map(id => document.getElementById(id));
+}
+
+function syncAllPill() {
+  const allChecked = INTEREST_PILLS.every(id => document.getElementById(id).classList.contains('selected'));
+  const allPill = document.getElementById(ALL_PILL);
+  if (allChecked) {
+    allPill.classList.add('selected');
+    allPill.querySelector('input').checked = true;
+  } else {
+    allPill.classList.remove('selected');
+    allPill.querySelector('input').checked = false;
+  }
+}
+
+INTEREST_PILLS.forEach(id => {
+  document.getElementById(id).addEventListener('click', () => {
+    const pill = document.getElementById(id);
+    pill.classList.toggle('selected');
+    pill.querySelector('input').checked = pill.classList.contains('selected');
+    syncAllPill();
+    document.getElementById('err-interest').classList.remove('show');
+  });
+});
+
+document.getElementById(ALL_PILL).addEventListener('click', () => {
+  const allPill = document.getElementById(ALL_PILL);
+  const willSelect = !allPill.classList.contains('selected');
+  INTEREST_PILLS.forEach(id => {
+    const p = document.getElementById(id);
+    p.classList.toggle('selected', willSelect);
+    p.querySelector('input').checked = willSelect;
+  });
+  allPill.classList.toggle('selected', willSelect);
+  allPill.querySelector('input').checked = willSelect;
+  document.getElementById('err-interest').classList.remove('show');
+});
+
+function getSelectedInterests() {
+  return INTEREST_PILLS
+    .filter(id => document.getElementById(id).classList.contains('selected'))
+    .map(id => document.getElementById(id).querySelector('input').value);
+}
+
+// ── Veteran status (radio pills) ──────────────────────────────────────────────
+let selectedVeteran = '';
+
+document.querySelectorAll('#veteran-group .choice-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('#veteran-group .choice-pill').forEach(p => p.classList.remove('selected'));
+    pill.classList.add('selected');
+    selectedVeteran = pill.querySelector('input').value;
+    document.getElementById('err-veteran').classList.remove('show');
+  });
+});
+
+// ── Validation ────────────────────────────────────────────────────────────────
+function validate() {
+  let ok = true;
+
+  const name = document.getElementById('name');
+  if (!name.value.trim()) { name.classList.add('invalid'); document.getElementById('err-name').classList.add('show'); ok = false; }
+  else { name.classList.remove('invalid'); document.getElementById('err-name').classList.remove('show'); }
+
+  const email = document.getElementById('email');
+  const emailOk = email.value.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
+  if (!emailOk) { email.classList.add('invalid'); document.getElementById('err-email').classList.add('show'); ok = false; }
+  else { email.classList.remove('invalid'); document.getElementById('err-email').classList.remove('show'); }
+
+  const phone = document.getElementById('phone');
+  if (!phone.value.trim()) { phone.classList.add('invalid'); document.getElementById('err-phone').classList.add('show'); ok = false; }
+  else { phone.classList.remove('invalid'); document.getElementById('err-phone').classList.remove('show'); }
+
+  if (getSelectedInterests().length === 0) { document.getElementById('err-interest').classList.add('show'); ok = false; }
+
+  if (!selectedVeteran) { document.getElementById('err-veteran').classList.add('show'); ok = false; }
+
+  return ok;
+}
+
+// ── Local storage helpers ─────────────────────────────────────────────────────
+function getEntries() { return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); }
+function saveEntryLocal(entry) {
+  const entries = getEntries();
+  entries.push(entry);
+  localStorage.setItem(STORE_KEY, JSON.stringify(entries));
+}
+
+// ── Submit to Google Sheets via Apps Script ───────────────────────────────────
+async function submitToSheets(entry) {
+  if (!APPS_SCRIPT_URL) return;
+  const params = new URLSearchParams(entry);
+  await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: params });
+}
+
+// ── Excel generation ──────────────────────────────────────────────────────────
+function buildXlsx(rows, filename) {
+  const headers = ['Name','Email','Phone','Interests','Veteran Status','Submitted'];
+  const data = [headers, ...rows.map(r => [
+    r.name, r.email, r.phone, r.interests, r.veteranStatus,
+    new Date(r.timestamp).toLocaleString('en-US')
+  ])];
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [22, 28, 16, 40, 22, 20].map(w => ({wch:w}));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Interest Submissions');
+  XLSX.writeFile(wb, filename);
+}
+
+// ── Form submit ───────────────────────────────────────────────────────────────
+document.getElementById('signup-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!validate()) return;
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'SUBMITTING…';
+  document.getElementById('submit-error').classList.remove('show');
+
+  const interests = getSelectedInterests().join(', ');
+
+  const entry = {
+    name:          document.getElementById('name').value.trim(),
+    email:         document.getElementById('email').value.trim(),
+    phone:         document.getElementById('phone').value.trim(),
+    interests:     interests,
+    veteranStatus: selectedVeteran,
+    timestamp:     new Date().toISOString(),
+  };
+
+  try {
+    await submitToSheets(entry);
+  } catch(err) {
+    console.warn('Sheets submission failed:', err);
+    document.getElementById('submit-error').classList.add('show');
+  }
+
+  saveEntryLocal(entry);
+
+  document.getElementById('signup-form').style.display = 'none';
+  document.getElementById('success-card').classList.add('show');
+  renderAdminTable();
+
+  btn.disabled = false;
+  btn.textContent = 'SUBMIT INTEREST';
+});
+
+function resetForm() {
+  document.getElementById('signup-form').reset();
+  document.getElementById('signup-form').style.display = '';
+  document.getElementById('success-card').classList.remove('show');
+
+  INTEREST_PILLS.forEach(id => {
+    const p = document.getElementById(id);
+    p.classList.remove('selected');
+    p.querySelector('input').checked = false;
+  });
+  document.getElementById(ALL_PILL).classList.remove('selected');
+  document.getElementById(ALL_PILL).querySelector('input').checked = false;
+
+  document.querySelectorAll('#veteran-group .choice-pill').forEach(p => p.classList.remove('selected'));
+  selectedVeteran = '';
+
+  document.querySelectorAll('.field-error').forEach(el => el.classList.remove('show'));
+  document.querySelectorAll('input.invalid').forEach(el => el.classList.remove('invalid'));
+  document.getElementById('submit-error').classList.remove('show');
+}
+
+// ── Admin password ────────────────────────────────────────────────────────────
+const ADMIN_HASH = '69cdb9b8b6c3ad82b7ee3cabd0d76ac25b5678a83f60c87cafe6db288c0cfdd6';
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+function toggleAdmin() {
+  if (sessionStorage.getItem('opmo-admin-auth') === '1') {
+    const p = document.getElementById('admin-panel');
+    p.classList.toggle('show');
+    if (p.classList.contains('show')) renderAdminTable();
+  } else {
+    document.getElementById('pw-modal-overlay').classList.add('show');
+    setTimeout(() => document.getElementById('pw-input').focus(), 50);
+  }
+}
+
+function closePwModal() {
+  document.getElementById('pw-modal-overlay').classList.remove('show');
+  document.getElementById('pw-input').value = '';
+  document.getElementById('pw-error').classList.remove('show');
+  document.getElementById('pw-input').classList.remove('invalid');
+}
+
+async function submitPassword() {
+  const val = document.getElementById('pw-input').value;
+  const hash = await sha256(val);
+  if (hash === ADMIN_HASH) {
+    sessionStorage.setItem('opmo-admin-auth', '1');
+    closePwModal();
+    const p = document.getElementById('admin-panel');
+    p.classList.add('show');
+    renderAdminTable();
+  } else {
+    document.getElementById('pw-input').classList.add('invalid');
+    document.getElementById('pw-error').classList.add('show');
+    document.getElementById('pw-input').value = '';
+    document.getElementById('pw-input').focus();
+  }
+}
+
+// ── Admin table ───────────────────────────────────────────────────────────────
+function renderAdminTable() {
+  const entries = getEntries();
+  document.getElementById('admin-count').textContent = `${entries.length} entr${entries.length===1?'y':'ies'} (this device)`;
+  const wrap = document.getElementById('admin-table-body');
+
+  const notice = document.getElementById('setup-notice');
+  notice.style.display = APPS_SCRIPT_URL ? 'none' : '';
+
+  if (!entries.length) {
+    wrap.innerHTML = '<div class="empty-state">No submissions recorded on this device yet.</div>';
+    return;
+  }
+
+  wrap.innerHTML = `<table>
+    <thead><tr>
+      <th>#</th><th>Name</th><th>Email</th><th>Phone</th>
+      <th>Interests</th><th>Veteran Status</th><th>Submitted</th>
+    </tr></thead>
+    <tbody>${entries.map((r,i) => `<tr>
+      <td>${i+1}</td>
+      <td>${r.name}</td>
+      <td>${r.email}</td>
+      <td>${r.phone}</td>
+      <td style="white-space:normal;max-width:180px">${r.interests}</td>
+      <td>${r.veteranStatus}</td>
+      <td>${new Date(r.timestamp).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+function exportAll() {
+  const entries = getEntries();
+  if (!entries.length) { alert('No submissions to export.'); return; }
+  const date = new Date().toISOString().slice(0,10);
+  buildXlsx(entries, `OpMo_ExpoInterest_${date}.xlsx`);
+}
+
+function clearAll() {
+  if (!confirm('Clear all local submission data?\n\nThis only removes data on this device. Google Sheets data (if configured) is unaffected.')) return;
+  localStorage.removeItem(STORE_KEY);
+  renderAdminTable();
+}
+
+// ── Password input — submit on Enter ─────────────────────────────────────────
+document.getElementById('pw-input').addEventListener('keydown', e => { if (e.key === 'Enter') submitPassword(); });
+
+// ── Input live-clear invalid state ───────────────────────────────────────────
+['name','email','phone'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function() { this.classList.remove('invalid'); });
+});
+</script>
+</body>
+</html>
