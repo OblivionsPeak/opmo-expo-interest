@@ -371,11 +371,9 @@ tr:last-child td { border-bottom: none; }
     </div>
 
     <div class="setup-notice" id="setup-notice">
-      <strong>Backend setup required for multi-device data collection.</strong><br>
-      Without a backend, only submissions from <em>this device/browser</em> appear below.
-      To collect all entries, follow the
-      <a href="SETUP.md" style="color:var(--accent)">Google Sheets setup guide</a>
-      and paste your Apps Script URL as <code>APPS_SCRIPT_URL</code> in this file.
+      <strong>Power Automate URL not configured.</strong><br>
+      Only submissions from <em>this device/browser</em> appear below.
+      Paste your Power Automate HTTP POST URL as <code>PA_URL</code> in this file to send all entries to your Microsoft tenant.
     </div>
 
     <div class="admin-table-wrap">
@@ -403,7 +401,8 @@ tr:last-child td { border-bottom: none; }
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 // Paste your Google Apps Script web app URL here after setup.
 // See SETUP.md for instructions. Leave blank to use local-only mode.
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8pZy3eZKpkGnc0sS9HVTdYVqGxWFL09Xz_yulyIuFZSySw7kUHv29OITh92q7GT8UPA/exec';
+// Paste your Power Automate HTTP POST URL here after setup.
+const PA_URL = '';
 
 const STORE_KEY = 'opmo-expo-interest';
 
@@ -503,11 +502,15 @@ function saveEntryLocal(entry) {
   localStorage.setItem(STORE_KEY, JSON.stringify(entries));
 }
 
-// ── Submit to Google Sheets via Apps Script ───────────────────────────────────
-async function submitToSheets(entry) {
-  if (!APPS_SCRIPT_URL) return;
-  const params = new URLSearchParams(entry);
-  await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: params });
+// ── Submit to Power Automate ──────────────────────────────────────────────────
+async function submitToPA(entry) {
+  if (!PA_URL) return;
+  await fetch(PA_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(entry),
+  });
 }
 
 // ── Excel generation ──────────────────────────────────────────────────────────
@@ -546,9 +549,9 @@ document.getElementById('signup-form').addEventListener('submit', async e => {
   };
 
   try {
-    await submitToSheets(entry);
+    await submitToPA(entry);
   } catch(err) {
-    console.warn('Sheets submission failed:', err);
+    console.warn('Power Automate submission failed:', err);
     document.getElementById('submit-error').classList.add('show');
   }
 
@@ -633,7 +636,7 @@ function renderAdminTable() {
   const wrap = document.getElementById('admin-table-body');
 
   const notice = document.getElementById('setup-notice');
-  notice.style.display = APPS_SCRIPT_URL ? 'none' : '';
+  notice.style.display = PA_URL ? 'none' : '';
 
   if (!entries.length) {
     wrap.innerHTML = '<div class="empty-state">No submissions recorded on this device yet.</div>';
