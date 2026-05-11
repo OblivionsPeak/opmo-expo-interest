@@ -428,7 +428,8 @@ function syncAllPill() {
 }
 
 INTEREST_PILLS.forEach(id => {
-  document.getElementById(id).addEventListener('click', () => {
+  document.getElementById(id).addEventListener('click', (e) => {
+    e.preventDefault();
     const pill = document.getElementById(id);
     pill.classList.toggle('selected');
     pill.querySelector('input').checked = pill.classList.contains('selected');
@@ -437,7 +438,8 @@ INTEREST_PILLS.forEach(id => {
   });
 });
 
-document.getElementById(ALL_PILL).addEventListener('click', () => {
+document.getElementById(ALL_PILL).addEventListener('click', (e) => {
+  e.preventDefault();
   const allPill = document.getElementById(ALL_PILL);
   const willSelect = !allPill.classList.contains('selected');
   INTEREST_PILLS.forEach(id => {
@@ -460,7 +462,8 @@ function getSelectedInterests() {
 let selectedVeteran = '';
 
 document.querySelectorAll('#veteran-group .choice-pill').forEach(pill => {
-  pill.addEventListener('click', () => {
+  pill.addEventListener('click', (e) => {
+    e.preventDefault();
     document.querySelectorAll('#veteran-group .choice-pill').forEach(p => p.classList.remove('selected'));
     pill.classList.add('selected');
     selectedVeteran = pill.querySelector('input').value;
