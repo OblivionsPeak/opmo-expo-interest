@@ -237,6 +237,25 @@ tr:last-child td { border-bottom: none; }
 .setup-notice strong { color: var(--accent); }
 .setup-notice code { background: var(--surface2); padding: 1px 5px; border-radius: 4px; font-size: 11px; color: var(--text); }
 
+/* ── Newsletter checkbox ── */
+.newsletter-wrap {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--accent-dim); border: 1px solid rgba(196,168,122,.25);
+  border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; cursor: pointer;
+}
+.newsletter-wrap input[type=checkbox] { display: none; }
+.newsletter-box {
+  width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px;
+  border: 2px solid var(--border); border-radius: 4px;
+  background: var(--surface2); transition: all .15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.newsletter-wrap.checked .newsletter-box { background: var(--accent); border-color: var(--accent); }
+.newsletter-box::after { content: '✓'; font-size: 11px; font-weight: 900; color: #0d1117; display: none; }
+.newsletter-wrap.checked .newsletter-box::after { display: block; }
+.newsletter-label { font-size: 13px; color: var(--text); line-height: 1.5; user-select: none; }
+.newsletter-label strong { color: var(--accent); }
+
 @media (max-width: 500px) {
   .pill-group.cols-5 { grid-template-columns: 1fr 1fr; }
   .form-card { padding: 24px 18px; }
@@ -335,7 +354,14 @@ tr:last-child td { border-bottom: none; }
         <div class="field-error" id="err-veteran">Please select a status</div>
       </div>
 
-      <button type="submit" class="btn-submit" id="submit-btn">SUBMIT INTEREST</button>
+      <!-- Newsletter opt-in -->
+      <div class="newsletter-wrap" id="newsletter-wrap" onclick="toggleNewsletter()">
+        <input type="checkbox" id="newsletter-check">
+        <div class="newsletter-box"></div>
+        <div class="newsletter-label">Would you be interested in receiving our <strong>OpMo 22 Pit Stop Newsletter</strong>?</div>
+      </div>
+
+      <button type="submit" class="btn-submit" id="submit-btn">SUBMIT</button>
       <div class="submit-error" id="submit-error">
         Submission failed. Your entry has been saved locally — please try again or let a staff member know.
       </div>
@@ -457,6 +483,13 @@ function getSelectedInterests() {
     .map(id => document.getElementById(id).querySelector('input').value);
 }
 
+// ── Newsletter toggle ─────────────────────────────────────────────────────────
+function toggleNewsletter() {
+  const wrap = document.getElementById('newsletter-wrap');
+  wrap.classList.toggle('checked');
+  document.getElementById('newsletter-check').checked = wrap.classList.contains('checked');
+}
+
 // ── Veteran status (radio pills) ──────────────────────────────────────────────
 let selectedVeteran = '';
 
@@ -515,13 +548,13 @@ async function submitToPA(entry) {
 
 // ── Excel generation ──────────────────────────────────────────────────────────
 function buildXlsx(rows, filename) {
-  const headers = ['Name','Email','Phone','Interests','Veteran Status','Submitted'];
+  const headers = ['Name','Email','Phone','Interests','Veteran Status','Newsletter','Submitted'];
   const data = [headers, ...rows.map(r => [
-    r.name, r.email, r.phone, r.interests, r.veteranStatus,
+    r.name, r.email, r.phone, r.interests, r.veteranStatus, r.newsletter || 'No',
     new Date(r.timestamp).toLocaleString('en-US')
   ])];
   const ws = XLSX.utils.aoa_to_sheet(data);
-  ws['!cols'] = [22, 28, 16, 40, 22, 20].map(w => ({wch:w}));
+  ws['!cols'] = [22, 28, 16, 40, 22, 10, 20].map(w => ({wch:w}));
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Interest Submissions');
   XLSX.writeFile(wb, filename);
@@ -545,6 +578,7 @@ document.getElementById('signup-form').addEventListener('submit', async e => {
     phone:         document.getElementById('phone').value.trim(),
     interests:     interests,
     veteranStatus: selectedVeteran,
+    newsletter:    document.getElementById('newsletter-wrap').classList.contains('checked') ? 'Yes' : 'No',
     timestamp:     new Date().toISOString(),
   };
 
@@ -577,6 +611,9 @@ function resetForm() {
   });
   document.getElementById(ALL_PILL).classList.remove('selected');
   document.getElementById(ALL_PILL).querySelector('input').checked = false;
+
+  document.getElementById('newsletter-wrap').classList.remove('checked');
+  document.getElementById('newsletter-check').checked = false;
 
   document.querySelectorAll('#veteran-group .choice-pill').forEach(p => p.classList.remove('selected'));
   selectedVeteran = '';
@@ -646,7 +683,7 @@ function renderAdminTable() {
   wrap.innerHTML = `<table>
     <thead><tr>
       <th>#</th><th>Name</th><th>Email</th><th>Phone</th>
-      <th>Interests</th><th>Veteran Status</th><th>Submitted</th>
+      <th>Interests</th><th>Veteran Status</th><th>Newsletter</th><th>Submitted</th>
     </tr></thead>
     <tbody>${entries.map((r,i) => `<tr>
       <td>${i+1}</td>
@@ -655,6 +692,7 @@ function renderAdminTable() {
       <td>${r.phone}</td>
       <td style="white-space:normal;max-width:180px">${r.interests}</td>
       <td>${r.veteranStatus}</td>
+      <td>${r.newsletter || 'No'}</td>
       <td>${new Date(r.timestamp).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td>
     </tr>`).join('')}</tbody>
   </table>`;
